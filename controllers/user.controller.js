@@ -42,7 +42,7 @@ const registerController = asyncHandler(async(req, res)=>{
     if(!createUser){throw new ApiError(500, "failed to create a new user")}
 
     // sending a response
-    res.status(200).json({message : "created the new user", userData : createUser})
+    res.status(200).json({message : "created the new user"})
 
 })
 
@@ -70,7 +70,7 @@ const loginController = asyncHandler(async(req, res)=>{
     // correct pass give cookie
     generateToken(res, user._id)
 
-    res.status(200).json(user)
+    res.status(200).json("user logged in")
 
 })
 
@@ -94,11 +94,8 @@ const updateCurrentUser = asyncHandler(async(req,res)=>{
     // getting user data from body
     const {name, bio, links } = req.body;
 
-    console.log(req.body);
-    
-    
     // finding the current user based on the prev middlewares auth check
-    const currentUser = await User.findById(req.user._id)
+    const currentUser = await User.findById(req.user._id).select("-password")
 
     if(!currentUser){throw new ApiError(404, "failed to find current user login again")}
 
