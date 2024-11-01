@@ -14,22 +14,22 @@ const registerController = asyncHandler(async(req, res)=>{
     const {username, password, email} = req.body;
 
     // validating the user data
-    if( !username || !password || ! email){throw new ApiError(404, "all fields are required")};
+    if( !username || !password || ! email){rea.status(404).json({message: "all fields are required to register"})};
 
-    if(password.length < 8){ throw new ApiError(401, "password is smol")};
+    if(password.length < 8){res.status(401).json({ message: "Password is too short" })};
 
     const emailRegex = /^[\w.%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
     if (!emailRegex.test(email)) {
-    throw new ApiError(400, "Invalid email format");
+        res.status(400).json({ message: "Invalid email format" });
     }
 
     // check if such USERNAME is taken
     const takenUsername = await User.findOne({username});
-    if(takenUsername){throw new ApiError(401, "username is already taken")}
+    if(takenUsername){res.status(401).json({ message: "Username is already taken" })}
 
     // check if the email is taken
     const takenEmail = await User.findOne({email});
-    if(takenEmail){throw new ApiError(401, "email is already taken")}
+    if(takenEmail){res.status(401).json({ message: "Email is already taken" })}
 
     // hash the password
     const salt = await bcrypt.genSalt(10)
@@ -39,7 +39,7 @@ const registerController = asyncHandler(async(req, res)=>{
     const createUser = await User.create({username, email, password:hashedPassword});
 
     // check is the user has been created
-    if(!createUser){throw new ApiError(500, "failed to create a new user")}
+    if(!createUser){res.status(500).json({ message: "Failed to create a new user" })}
 
     // sending a response
     res.status(200).json({message : "created the new user"})
